@@ -32,18 +32,23 @@ const productsSlice = createSlice({
             state.error = action.payload;
         },
     },
+
+    // since i used createAsyncThunk i need to add extraReducers to handle the async thunk states
+    // generally the async thunk states are: pending, fulfilled, rejected
     extraReducers: (builder) => {
-        // Handle async thunk states
         builder
+            // pending state
             .addCase(fetchProducts.pending, (state) => {
                 state.loading = true;
                 state.error = null;
             })
+            // fulfilled state
             .addCase(fetchProducts.fulfilled, (state, action: PayloadAction<Product[]>) => {
-                state.loading = false;
-                state.items = action.payload;
-                state.totalCount = action.payload.length;
+                state.loading = false; // hide the spinner from pending
+                state.items = action.payload; // update the products list
+                state.totalCount = action.payload.length; // update the total count
             })
+            // rejected state
             .addCase(fetchProducts.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.error.message || 'Failed to fetch products';

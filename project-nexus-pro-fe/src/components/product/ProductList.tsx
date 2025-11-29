@@ -11,6 +11,7 @@ export default function ProductList() {
         dispatch(fetchProducts());
     }, [dispatch]);
 
+    // loading state
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
@@ -19,6 +20,7 @@ export default function ProductList() {
         );
     }
 
+    // error state
     if (error) {
         return (
             <div className="flex items-center justify-center min-h-screen">
@@ -27,6 +29,7 @@ export default function ProductList() {
         );
     }
 
+    // success state
     return (
         <div className="container mx-auto px-4 py-8">
             <h1 className="text-3xl font-bold mb-6">Products</h1>
@@ -46,6 +49,7 @@ export default function ProductList() {
                                 <p className="text-xl font-bold text-blue-600">
                                     ${product.sale_price}
                                 </p>
+                                {/* if product has discount show the price before discount */}
                                 {product.discount_percentage !== "0.00" && (
                                     <p className="text-sm text-gray-500 line-through">
                                         ${product.base_price}
@@ -67,6 +71,8 @@ export default function ProductList() {
                 ))}
             </div>
 
+
+                {/* if no items / products found show this */}
             {items.length === 0 && (
                 <div className="text-center text-gray-500 mt-8">
                     No products found.

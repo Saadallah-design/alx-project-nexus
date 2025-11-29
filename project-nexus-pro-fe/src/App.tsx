@@ -1,14 +1,14 @@
 import './App.css'
+import Layout from './components/layout/Layout'
+import ProductList from './components/product/ProductList'
 
 function App() {
-
   return (
-    <>
-      <div className="flex gap-4 justify-center items-center">
-        <h1 className="text-4xl font-bold text-blue-500">Project Nexus Prodev FE</h1> 
-      </div>
-    </>
+    <Layout>
+      <ProductList />
+    </Layout>
   )
 }
 
 export default App
+
