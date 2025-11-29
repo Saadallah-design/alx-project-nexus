@@ -9,10 +9,32 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-    const { name, sale_price, images, category } = product;
+    const { name, sale_price, images, image, category } = product;
 
-    // Use the first image or a placeholder
-    const displayImage = images && images.length > 0 ? images[0] : 'https://placehold.co/400x400?text=No+Image';
+    // DEBUG: Log to see what we're getting
+    console.log('Product:', name, 'Images:', images, 'Image:', image);
+
+    // Backward compatible image handling
+    let displayImage: string;
+    let imageAlt: string;
+
+    if (images && images.length > 0) {
+        // New format: use images array
+        const primaryImage = images.find(img => img.is_primary) || images[0];
+        displayImage = primaryImage.image_url;
+        imageAlt = primaryImage.alt_text || name;
+        console.log('Using images array. Primary image:', displayImage);
+    } else if (image) {
+        // Old format: use single image field
+        displayImage = image;
+        imageAlt = name;
+        console.log('Using single image field:', displayImage);
+    } else {
+        // No image available
+        displayImage = 'https://placehold.co/400x400?text=No+Image';
+        imageAlt = name;
+        console.log('No image found, using placeholder');
+    }
 
     return (
         <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:scale-[1.02] border border-gray-100 hover:shadow-xl group">
@@ -21,7 +43,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             <div className="relative h-64 overflow-hidden bg-gray-50">
                 <img
                     src={displayImage}
-                    alt={name}
+                    alt={imageAlt}
                     className="w-full h-full object-cover transition-opacity duration-500 hover:opacity-90"
                 />
 
@@ -33,13 +55,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
             {/* 📝 Details Section */}
             <div className="p-4 flex flex-col justify-between">
-                <h3 className="text-lg font-bold text-secondary truncate mb-2" title={name}>
+                <h3 className="text-base font-bold text-secondary truncate mb-2" title={name}>
                     {name}
                 </h3>
 
                 {/* Price and Rating */}
                 <div className="flex items-center justify-between mb-3">
-                    <p className="text-2xl font-extrabold text-primary">
+                    <p className="text-xl font-extrabold text-primary">
                         {parseFloat(sale_price).toFixed(2)} MAD
                     </p>
                     {/* Placeholder for a star rating */}

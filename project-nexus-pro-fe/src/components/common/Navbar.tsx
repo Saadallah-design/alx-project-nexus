@@ -1,5 +1,6 @@
 import { Fragment, useState } from 'react'
 import moroccanFlag from '../../assets/icons/flag-morocco.svg'; 
+import HaickLogo from '../../assets/icons/haick-logo.svg';
 import {
     Dialog,
     DialogBackdrop,
@@ -277,7 +278,7 @@ export default function Navbar() {
                                     <span className="sr-only">Haick Concept souk</span>
                                     <img
                                         alt=""
-                                        src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
+                                        src={HaickLogo}
                                         className="h-8 w-auto"
                                     />
                                 </a>
