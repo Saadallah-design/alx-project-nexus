@@ -1,95 +1,77 @@
-// src/components/common/ProductCard.tsx
-
 import React from 'react';
 import type { Product } from '../../types/product';
+import { useAppDispatch } from '../../hooks/useAppDispatch';
+import { addToCart, toggleCart } from '../../store/slices/cartSlice';
 
-// Define props for type safety
 interface ProductCardProps {
     product: Product;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-    const { name, sale_price, images, image, category } = product;
+export default function ProductCard({ product }: ProductCardProps) {
+    const dispatch = useAppDispatch();
 
-    // DEBUG: Log to see what we're getting
-    console.log('Product:', name, 'Images:', images, 'Image:', image);
+    // Helper to get the primary image or the first one
+    const getProductImage = (product: Product) => {
+        // 1. Try to find the primary image in the images array
+        if (product.images && product.images.length > 0) {
+            const primary = product.images.find(img => img.is_primary);
+            if (primary) return primary.image_url;
+            return product.images[0].image_url;
+        }
 
-    // Backward compatible image handling
-    let displayImage: string;
-    let imageAlt: string;
+        // 2. Fallback to the old 'image' field if it exists (backward compatibility)
+        if (product.image) return product.image;
 
-    if (images && images.length > 0) {
-        // New format: use images array
-        const primaryImage = images.find(img => img.is_primary) || images[0];
-        displayImage = primaryImage.image_url;
-        imageAlt = primaryImage.alt_text || name;
-        console.log('Using images array. Primary image:', displayImage);
-    } else if (image) {
-        // Old format: use single image field
-        displayImage = image;
-        imageAlt = name;
-        console.log('Using single image field:', displayImage);
-    } else {
-        // No image available
-        displayImage = 'https://placehold.co/400x400?text=No+Image';
-        imageAlt = name;
-        console.log('No image found, using placeholder');
-    }
+        // 3. Fallback placeholder
+        return 'https://placehold.co/300x400?text=No+Image';
+    };
+
+    const handleAddToCart = (e: React.MouseEvent) => {
+        e.preventDefault(); // Prevent navigation if wrapped in a link
+        dispatch(addToCart(product));
+        dispatch(toggleCart(true)); // Open cart drawer to show feedback
+    };
 
     return (
-        <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:scale-[1.02] border border-gray-100 hover:shadow-xl group">
-
-            {/* 🏞️ Image Section */}
-            <div className="relative h-64 overflow-hidden bg-gray-50">
+        <div className="group relative flex flex-col h-full">
+            <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80 relative">
                 <img
-                    src={displayImage}
-                    alt={imageAlt}
-                    className="w-full h-full object-cover transition-opacity duration-500 hover:opacity-90"
+                    src={getProductImage(product)}
+                    alt={product.name}
+                    className="h-full w-full object-cover object-center lg:h-full lg:w-full"
                 />
-
-                {/* 🏷️ Category Badge */}
-                <span className="absolute top-2 right-2 bg-secondary text-white text-xs font-semibold px-2 py-1 rounded-full uppercase tracking-wider">
-                    {category.name}
+                {/* Category Badge */}
+                <span className="absolute top-2 right-2 bg-secondary text-white text-xs font-semibold px-2 py-1 rounded-full uppercase tracking-wider text-left">
+                    {product.category.name}
                 </span>
             </div>
-
-            {/* 📝 Details Section */}
-            <div className="p-4 flex flex-col justify-between">
-                <h3 className="text-base font-bold text-secondary truncate mb-2" title={name}>
-                    {name}
-                </h3>
-
-                {/* Price and Rating */}
-                <div className="flex items-center justify-between mb-3">
-                    <p className="text-xl font-extrabold text-primary">
-                        {parseFloat(sale_price).toFixed(2)} MAD
-                    </p>
-                    {/* Placeholder for a star rating */}
-                    <div className="text-gray-400 text-sm">★★★★★</div>
+            <div className="mt-4 flex justify-between">
+                <div>
+                    <h3 className="text-sm text-gray-700">
+                        <a href="#">
+                            <span aria-hidden="true" className="absolute inset-0" />
+                            {product.name}
+                        </a>
+                    </h3>
+                    <p className="mt-1 text-sm text-gray-500 text-left">{product.category.name}</p>
                 </div>
+                <p className="text-sm font-medium text-gray-900">{parseFloat(product.sale_price).toFixed(2)} MAD</p>
+            </div>
 
-                {/* 🛍️ Action Buttons */}
-                <div className="flex space-x-2 mt-2">
-                    {/* Add to Cart Button */}
-                    <button
-                        className="flex-1 bg-gray-100 text-secondary border border-primary hover:bg-primary hover:text-white transition-colors duration-200 py-2 rounded-lg font-semibold text-sm cursor-pointer"
-                        onClick={() => console.log('Dispatch addToCart action for ID:', product.id)}
-                    >
-                        Add to Cart
-                    </button>
-
-                    {/* Wishlist Button */}
-                    <button
-                        className="p-2 border border-gray-300 rounded-lg hover:bg-gray-200 text-secondary transition-colors duration-200 cursor-pointer"
-                        onClick={() => console.log('Dispatch toggleWishlist action for ID:', product.id)}
-                        aria-label="Add to Wishlist"
-                    >
-                        🤍
-                    </button>
-                </div>
+            {/* Action Buttons */}
+            <div className="mt-4 flex gap-2 z-10 relative">
+                <button
+                    onClick={handleAddToCart}
+                    className="flex-1 bg-primary text-white py-2 px-4 rounded-md text-sm font-medium hover:bg-primary-hover transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                >
+                    Add to Cart
+                </button>
+                <button
+                    className="flex-1 bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-md text-sm font-medium hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                >
+                    View Product
+                </button>
             </div>
         </div>
     );
-};
-
-export default ProductCard;
+}

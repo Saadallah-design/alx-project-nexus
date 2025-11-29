@@ -1,6 +1,9 @@
 import { Fragment, useState } from 'react'
-import moroccanFlag from '../../assets/icons/flag-morocco.svg'; 
+import moroccanFlag from '../../assets/icons/flag-morocco.svg';
 import HaickLogo from '../../assets/icons/haick-logo.svg';
+import { useAppDispatch } from '../../hooks/useAppDispatch';
+import { useAppSelector } from '../../hooks/useAppSelector';
+import { selectCartCount, toggleCart } from '../../store/slices/cartSlice';
 import {
     Dialog,
     DialogBackdrop,
@@ -130,6 +133,13 @@ const navigation = {
 
 export default function Navbar() {
     const [open, setOpen] = useState(false)
+    const dispatch = useAppDispatch();
+    const cartCount = useAppSelector(selectCartCount);
+
+    const handleCartClick = (e: React.MouseEvent) => {
+        e.preventDefault();
+        dispatch(toggleCart(true));
+    };
 
     return (
         <div className="bg-white">
@@ -398,12 +408,12 @@ export default function Navbar() {
 
                                 {/* Cart */}
                                 <div className="ml-4 flow-root lg:ml-6">
-                                    <a href="#" className="group -m-2 flex items-center p-2">
+                                    <a href="#" onClick={handleCartClick} className="group -m-2 flex items-center p-2">
                                         <ShoppingBagIcon
                                             aria-hidden="true"
                                             className="size-6 shrink-0 text-secondary/70 group-hover:text-secondary"
                                         />
-                                        <span className="ml-2 text-sm font-medium text-secondary group-hover:text-secondary/80">0</span>
+                                        <span className="ml-2 text-sm font-medium text-secondary group-hover:text-secondary/80">{cartCount}</span>
                                         <span className="sr-only">items in cart, view bag</span>
                                     </a>
                                 </div>
