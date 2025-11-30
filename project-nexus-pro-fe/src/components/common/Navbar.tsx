@@ -1,9 +1,11 @@
 import { Fragment, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom';
 import moroccanFlag from '../../assets/icons/flag-morocco.svg';
 import HaickLogo from '../../assets/icons/haick-logo.svg';
 import { useAppDispatch } from '../../hooks/useAppDispatch';
 import { useAppSelector } from '../../hooks/useAppSelector';
 import { selectCartCount, toggleCart } from '../../store/slices/cartSlice';
+import { selectIsAuthenticated, selectUser, logoutUser } from '../../store/slices/authSlice';
 import {
     Dialog,
     DialogBackdrop,
@@ -17,10 +19,15 @@ import {
     TabList,
     TabPanel,
     TabPanels,
+    Menu,
+    MenuButton,
+    MenuItem,
+    MenuItems,
+    Transition,
 } from '@headlessui/react'
 // using tailwind free navbar template 
 
-import { Bars3Icon, MagnifyingGlassIcon, ShoppingBagIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { Bars3Icon, MagnifyingGlassIcon, ShoppingBagIcon, XMarkIcon, UserCircleIcon } from '@heroicons/react/24/outline'
 
 const navigation = {
     categories: [
@@ -131,14 +138,26 @@ const navigation = {
     ],
 }
 
+function classNames(...classes: string[]) {
+    return classes.filter(Boolean).join(' ')
+}
+
 export default function Navbar() {
     const [open, setOpen] = useState(false)
     const dispatch = useAppDispatch();
+    const navigate = useNavigate();
     const cartCount = useAppSelector(selectCartCount);
+    const isAuthenticated = useAppSelector(selectIsAuthenticated);
+    const user = useAppSelector(selectUser);
 
     const handleCartClick = (e: React.MouseEvent) => {
         e.preventDefault();
         dispatch(toggleCart(true));
+    };
+
+    const handleLogout = async () => {
+        await dispatch(logoutUser());
+        navigate('/');
     };
 
     return (
@@ -237,16 +256,36 @@ export default function Navbar() {
                         </div>
 
                         <div className="space-y-6 border-t border-gray-200 px-4 py-6">
-                            <div className="flow-root">
-                                <a href="#" className="-m-2 block p-2 font-medium text-secondary">
-                                    Sign in
-                                </a>
-                            </div>
-                            <div className="flow-root">
-                                <a href="#" className="-m-2 block p-2 font-medium text-secondary">
-                                    Create account
-                                </a>
-                            </div>
+                            {isAuthenticated ? (
+                                <>
+                                    <div className="flow-root">
+                                        <Link to="/dashboard" className="-m-2 block p-2 font-medium text-secondary">
+                                            My Account ({user?.first_name})
+                                        </Link>
+                                    </div>
+                                    <div className="flow-root">
+                                        <button
+                                            onClick={handleLogout}
+                                            className="-m-2 block p-2 font-medium text-secondary w-full text-left"
+                                        >
+                                            Sign out
+                                        </button>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <div className="flow-root">
+                                        <Link to="/login" className="-m-2 block p-2 font-medium text-secondary">
+                                            Sign in
+                                        </Link>
+                                    </div>
+                                    <div className="flow-root">
+                                        <Link to="/register" className="-m-2 block p-2 font-medium text-secondary">
+                                            Create account
+                                        </Link>
+                                    </div>
+                                </>
+                            )}
                         </div>
 
                         <div className="border-t border-gray-200 px-4 py-6">
@@ -284,14 +323,14 @@ export default function Navbar() {
 
                             {/* Logo */}
                             <div className="ml-4 flex lg:ml-0">
-                                <a href="#">
+                                <Link to="/">
                                     <span className="sr-only">Haick Concept souk</span>
                                     <img
                                         alt=""
                                         src={HaickLogo}
                                         className="h-8 w-auto"
                                     />
-                                </a>
+                                </Link>
                             </div>
 
                             {/* Flyout menus */}
@@ -377,13 +416,71 @@ export default function Navbar() {
 
                             <div className="ml-auto flex items-center">
                                 <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
-                                    <a href="#" className="text-sm font-medium text-secondary hover:text-secondary/80">
-                                        Sign in
-                                    </a>
-                                    <span aria-hidden="true" className="h-6 w-px bg-gray-200" />
-                                    <a href="#" className="text-sm font-medium text-secondary hover:text-secondary/80">
-                                        Create account
-                                    </a>
+                                    {isAuthenticated ? (
+                                        <Menu as="div" className="relative ml-3">
+                                            <div>
+                                                <MenuButton className="flex rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                                                    <span className="sr-only">Open user menu</span>
+                                                    <div className="flex items-center">
+                                                        <UserCircleIcon className="h-8 w-8 text-gray-400" aria-hidden="true" />
+                                                        <span className="ml-2 text-sm font-medium text-secondary">{user?.first_name}</span>
+                                                    </div>
+                                                </MenuButton>
+                                            </div>
+                                            <Transition
+                                                as={Fragment}
+                                                enter="transition ease-out duration-200"
+                                                enterFrom="transform opacity-0 scale-95"
+                                                enterTo="transform opacity-100 scale-100"
+                                                leave="transition ease-in duration-75"
+                                                leaveFrom="transform opacity-100 scale-100"
+                                                leaveTo="transform opacity-0 scale-95"
+                                            >
+                                                <MenuItems className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                                    <MenuItem>
+                                                        {({ active }) => (
+                                                            <Link
+                                                                to="/dashboard"
+                                                                className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
+                                                            >
+                                                                Your Profile
+                                                            </Link>
+                                                        )}
+                                                    </MenuItem>
+                                                    <MenuItem>
+                                                        {({ active }) => (
+                                                            <Link
+                                                                to="/dashboard"
+                                                                className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
+                                                            >
+                                                                Orders
+                                                            </Link>
+                                                        )}
+                                                    </MenuItem>
+                                                    <MenuItem>
+                                                        {({ active }) => (
+                                                            <button
+                                                                onClick={handleLogout}
+                                                                className={classNames(active ? 'bg-gray-100' : '', 'block w-full text-left px-4 py-2 text-sm text-gray-700')}
+                                                            >
+                                                                Sign out
+                                                            </button>
+                                                        )}
+                                                    </MenuItem>
+                                                </MenuItems>
+                                            </Transition>
+                                        </Menu>
+                                    ) : (
+                                        <>
+                                            <Link to="/login" className="text-sm font-medium text-secondary hover:text-secondary/80">
+                                                Sign in
+                                            </Link>
+                                            <span aria-hidden="true" className="h-6 w-px bg-gray-200" />
+                                            <Link to="/register" className="text-sm font-medium text-secondary hover:text-secondary/80">
+                                                Create account
+                                            </Link>
+                                        </>
+                                    )}
                                 </div>
 
                                 <div className="hidden lg:ml-8 lg:flex">

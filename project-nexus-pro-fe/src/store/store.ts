@@ -5,6 +5,7 @@ import productsReducer from './slices/productsSlice';
 import filterReducer from './slices/filterSlice';
 import cartReducer from './slices/cartSlice';
 import checkoutReducer from './slices/checkoutSlice';
+import authReducer, { type AuthState } from './slices/authSlice';
 
 
 // 2. Import State Interfaces (assuming you define them near their reducers or in types/)
@@ -20,6 +21,7 @@ export const store = configureStore({
     filters: filterReducer,
     cart: cartReducer,
     checkout: checkoutReducer,
+    auth: authReducer,
   },
 });
 
@@ -29,7 +31,7 @@ export type RootState = {
   filters: FilterState;
   cart: CartState; // <-- Explicitly defined type
   checkout: CheckoutState; // <-- Explicitly defined type
-  // auth: AuthState; // (Will be added later)
+  auth: AuthState;
 };
 
 // 4. Define AppDispatch (using ReturnType is standard here)

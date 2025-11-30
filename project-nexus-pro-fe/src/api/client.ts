@@ -1,16 +1,26 @@
+import { getAccessToken } from '../utils/localStorage';
+
 // Base API URL - use environment variable for flexibility
 const API_BASE_URL = import.meta.env.VITE_API_URL;
+
+// Helper to get headers with auth token
+const getHeaders = () => {
+    const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+    };
+    const token = getAccessToken();
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+    return headers;
+};
 
 // API client configuration
 export const apiClient = {
     get: async <T>(endpoint: string): Promise<T> => {
         const response = await fetch(`${API_BASE_URL}${endpoint}`, {
             credentials: 'include', // Ensure cookies are sent for session persistence
-            headers: {
-                'Content-Type': 'application/json',
-                //  auth token
-                // 'Authorization': `Bearer ${getToken()}`,
-            },
+            headers: getHeaders(),
         });
 
         if (!response.ok) {
@@ -24,9 +34,7 @@ export const apiClient = {
         const response = await fetch(`${API_BASE_URL}${endpoint}`, {
             method: 'POST',
             credentials: 'include', // Ensure cookies are sent for session persistence
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: getHeaders(),
             body: JSON.stringify(data),
         });
 
@@ -55,9 +63,7 @@ export const apiClient = {
         const response = await fetch(`${API_BASE_URL}${endpoint}`, {
             method: 'PATCH',
             credentials: 'include',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: getHeaders(),
             body: JSON.stringify(data),
         });
 
@@ -72,9 +78,7 @@ export const apiClient = {
         const response = await fetch(`${API_BASE_URL}${endpoint}`, {
             method: 'DELETE',
             credentials: 'include',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: getHeaders(),
         });
 
         if (!response.ok) {
