@@ -6,7 +6,7 @@ export interface CheckoutPayload {
     last_name?: string;
     phone_number?: string;
     email?: string;
-    shipping_address: string;
+    shipping_address?: string;
     shipping_address_line_2?: string | null;
     shipping_city: string;
     shipping_state?: string;

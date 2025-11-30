@@ -45,10 +45,8 @@ const ShippingForm: React.FC = () => {
         const newErrors: Record<string, string> = {};
         if (!formData.first_name) newErrors.first_name = 'First name is required';
         if (!formData.last_name) newErrors.last_name = 'Last name is required';
-        if (!formData.email) newErrors.email = 'Email is required';
-        else if (!/\S+@\S+\.\S/.test(formData.email!)) newErrors.email = 'Email is invalid';
         if (!formData.phone_number) newErrors.phone_number = 'Phone number is required';
-        if (!formData.address_line_1) newErrors.address_line_1 = 'Address is required';
+        // Address is now optional
         if (!formData.city) newErrors.city = 'City is required';
         if (!formData.postal_code) newErrors.postal_code = 'Postal code is required';
 
@@ -71,11 +69,11 @@ const ShippingForm: React.FC = () => {
                 first_name: formData.first_name!,
                 last_name: formData.last_name!,
                 phone_number: formData.phone_number!,
-                email: formData.email!,
-                address_line_1: formData.address_line_1!,
-                address_line_2: formData.address_line_2 || '', // Send empty string if null/undefined
+                // Email is collected at OrderReview step
+                address_line_1: formData.address_line_1 || '', // Optional
+                address_line_2: formData.address_line_2 || '',
                 city: formData.city!,
-                state_province: '', // Not collected in simplified form
+                state_province: '',
                 postal_code: formData.postal_code!,
                 country: formData.country || 'Morocco',
             };
@@ -129,10 +127,9 @@ const ShippingForm: React.FC = () => {
                     {renderInput('Last Name', 'last_name')}
                 </div>
 
-                {renderInput('Email', 'email', 'email')}
                 {renderInput('Phone Number', 'phone_number', 'tel')}
 
-                {renderInput('Street Address', 'address_line_1')}
+                {renderInput('Street Address (Optional)', 'address_line_1', 'text', false)}
                 {renderInput('Apartment, suite, etc. (optional)', 'address_line_2')}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

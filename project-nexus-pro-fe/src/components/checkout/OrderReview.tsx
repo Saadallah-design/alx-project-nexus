@@ -57,16 +57,15 @@ const OrderReview: React.FC = () => {
         try {
             // Transform frontend Address to backend CheckoutPayload
             const checkoutPayload: CheckoutPayload = {
-                first_name: checkoutData.shippingAddress?.first_name,
-                last_name: checkoutData.shippingAddress?.last_name,
-                phone_number: checkoutData.shippingAddress?.phone_number,
-                email: checkoutData.shippingAddress?.email,
-                shipping_address: checkoutData.shippingAddress?.address_line_1 || '',
+                first_name: checkoutData.shippingAddress?.first_name || '',
+                last_name: checkoutData.shippingAddress?.last_name || '',
+                phone_number: checkoutData.shippingAddress?.phone_number || '',
+                shipping_address: checkoutData.shippingAddress?.address_line_1 || 'N/A',
                 shipping_address_line_2: checkoutData.shippingAddress?.address_line_2 || '',
                 shipping_city: checkoutData.shippingAddress?.city || '',
-                shipping_state: checkoutData.shippingAddress?.state_province,
+                shipping_state: checkoutData.shippingAddress?.state_province || '',
                 shipping_postal_code: checkoutData.shippingAddress?.postal_code || '',
-                shipping_country: checkoutData.shippingAddress?.country,
+                shipping_country: checkoutData.shippingAddress?.country || 'Morocco',
             };
 
             // Check if user is authenticated
@@ -80,8 +79,6 @@ const OrderReview: React.FC = () => {
             } else {
                 response = await checkoutApi.createOrder(checkoutPayload);
             }
-
-            console.log('Order created:', response);
 
             // Clear cart and move to confirmation
             dispatch(clearCart());
@@ -121,6 +118,7 @@ const OrderReview: React.FC = () => {
                     </div>
                 )}
             </div>
+
 
             {/* Shipping Method */}
             <div className="mb-6">

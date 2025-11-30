@@ -7,14 +7,14 @@ export interface Address {
     id?: string; // Optional if using saved addresses
 
     // Contact Details
-    first_name: string; 
+    first_name: string;
     last_name: string;
     phone_number: string;
-    email: string;
+    email?: string;
 
     // Location Details
-    address_line_1: string; 
-    address_line_2: string | null; 
+    address_line_1?: string;
+    address_line_2: string | null;
     city: string;
     state_province: string; // Keep this generic
     postal_code: string;
@@ -24,7 +24,7 @@ export interface Address {
 // --- 2. Shipping Rate Interface ---
 export interface ShippingRate {
     // This ID is CRITICAL; the final order submission uses this to identify the rate.
-    id: string; 
+    id: string;
     carrier_name: string; // e.g., "Amana Express"
     price: string; // Decimal as string, e.g., "50.00"
     delivery_estimate: string; // e.g., "3-5 days"
@@ -33,14 +33,14 @@ export interface ShippingRate {
 // --- 3. Checkout State Interface (The Flow Manager) ---
 export interface CheckoutState {
     // Flow Management
-    currentStep: 1 | 2 | 3 | 4; 
+    currentStep: 1 | 2 | 3 | 4;
     status: 'idle' | 'loading' | 'submitting' | 'succeeded' | 'failed';
     error: string | null;
 
     // Data Collected
     shippingAddress: Address | null;
-    billingAddress: Address | null; 
+    billingAddress: Address | null;
     selectedShippingRate: ShippingRate | null;
-    paymentMethod: 'COD' | 'Card' | null; 
-    paymentIntentId: string | null; 
+    paymentMethod: 'COD' | 'Card' | null;
+    paymentIntentId: string | null;
 }
