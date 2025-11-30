@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useAppDispatch } from '../../hooks/useAppDispatch';
 import { useAppSelector } from '../../hooks/useAppSelector';
-import { fetchProducts } from '../../store/slices/productsSlice';
+import { fetchProducts, loadMoreProducts, selectHasMore } from '../../store/slices/productsSlice';
 import type { RootState } from '../../store/store';
 import SidebarFilter from '../common/SidebarFilter';
 import { FunnelIcon } from '@heroicons/react/20/solid';
@@ -11,8 +11,12 @@ import ProductCard from '../common/ProductCard';
 export default function ProductList() {
     const dispatch = useAppDispatch();
     const { items, loading, error } = useAppSelector((state: RootState) => state.products);
+    const hasMore = useAppSelector(selectHasMore);
     const filters = useAppSelector((state: RootState) => state.filters);
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+
+    // Ref for the intersection observer target
+    const observerTarget = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         dispatch(fetchProducts());
@@ -42,8 +46,38 @@ export default function ProductList() {
         return true;
     });
 
-    // loading state
-    if (loading) {
+    // Infinite scroll callback
+    const handleLoadMore = useCallback(() => {
+        if (!loading && hasMore) {
+            dispatch(loadMoreProducts());
+        }
+    }, [dispatch, loading, hasMore]);
+
+    // Intersection Observer for infinite scroll
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting && hasMore && !loading) {
+                    handleLoadMore();
+                }
+            },
+            { threshold: 0.1 }
+        );
+
+        const currentTarget = observerTarget.current;
+        if (currentTarget) {
+            observer.observe(currentTarget);
+        }
+
+        return () => {
+            if (currentTarget) {
+                observer.unobserve(currentTarget);
+            }
+        };
+    }, [hasMore, loading, handleLoadMore]);
+
+    // Initial loading state
+    if (loading && items.length === 0) {
         return (
             <div className="flex items-center justify-center min-h-screen">
                 <div className="text-xl text-primary">Loading products...</div>
@@ -52,7 +86,7 @@ export default function ProductList() {
     }
 
     // error state
-    if (error) {
+    if (error && items.length === 0) {
         return (
             <div className="flex items-center justify-center min-h-screen">
                 <div className="text-xl text-red-500">Error: {error}</div>
@@ -100,8 +134,26 @@ export default function ProductList() {
                                     ))}
                                 </div>
 
-                                {filteredItems.length === 0 && (
+                                {filteredItems.length === 0 && !loading && (
                                     <div className="text-center text-gray-500 mt-8">No products found.</div>
+                                )}
+
+                                {/* Loading indicator for infinite scroll */}
+                                {loading && items.length > 0 && (
+                                    <div className="text-center text-primary mt-8">
+                                        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                                        <p className="mt-2">Loading more products...</p>
+                                    </div>
+                                )}
+
+                                {/* Intersection observer target */}
+                                <div ref={observerTarget} className="h-10" />
+
+                                {/* End of results message */}
+                                {!hasMore && items.length > 0 && (
+                                    <div className="text-center text-gray-500 mt-8 mb-8">
+                                        <p className="text-sm">You've reached the end of our collection</p>
+                                    </div>
                                 )}
                             </div>
                         </div>

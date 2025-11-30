@@ -41,4 +41,7 @@ export interface ProductsState {
     loading: boolean;
     error: string | null;
     totalCount: number;
+    currentPage: number;
+    hasMore: boolean;
+    pageSize: number;
 }

@@ -15,8 +15,10 @@ export default function ProductCard({ product }: ProductCardProps) {
         // 1. Try to find the primary image in the images array
         if (product.images && product.images.length > 0) {
             const primary = product.images.find(img => img.is_primary);
-            if (primary) return primary.image_url;
-            return product.images[0].image_url;
+            // Use image_url which has the full URL
+            if (primary) return primary.image_url || primary.image;
+            // Fallback to first image
+            return product.images[0].image_url || product.images[0].image;
         }
 
         // 2. Fallback to the old 'image' field if it exists (backward compatibility)
@@ -39,6 +41,10 @@ export default function ProductCard({ product }: ProductCardProps) {
                     src={getProductImage(product)}
                     alt={product.name}
                     className="h-full w-full object-cover object-center lg:h-full lg:w-full"
+                    onError={(e) => {
+                        // Fallback if image fails to load
+                        e.currentTarget.src = 'https://placehold.co/300x400?text=No+Image';
+                    }}
                 />
                 {/* Category Badge */}
                 <span className="absolute top-2 right-2 bg-secondary text-white text-xs font-semibold px-2 py-1 rounded-full uppercase tracking-wider text-left">
