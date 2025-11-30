@@ -1,3 +1,4 @@
+// src/store/slices/productsSlice.ts
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
 import type { Product, ProductsState } from '../../types/product';
 import { productsApi } from '../../api/productsApi';

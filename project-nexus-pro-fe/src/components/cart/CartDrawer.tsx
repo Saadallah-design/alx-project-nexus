@@ -5,6 +5,7 @@ import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useAppDispatch } from '../../hooks/useAppDispatch';
 import { useAppSelector } from '../../hooks/useAppSelector';
 import { toggleCart, removeFromCart, updateQuantity, selectCartItems, selectCartIsOpen, selectCartTotal } from '../../store/slices/cartSlice';
+import { Link } from 'react-router-dom';
 
 export default function CartDrawer() {
     const dispatch = useAppDispatch();
@@ -136,12 +137,13 @@ export default function CartDrawer() {
                                             </div>
                                             <p className="mt-0.5 text-sm text-gray-500">Shipping and taxes calculated at checkout.</p>
                                             <div className="mt-6">
-                                                <a
-                                                    href="#"
+                                                <Link
+                                                    to="/checkout"
+                                                    onClick={handleClose}
                                                     className="flex items-center justify-center rounded-md border border-transparent bg-primary px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-primary-hover"
                                                 >
                                                     Checkout
-                                                </a>
+                                                </Link>
                                             </div>
                                             <div className="mt-6 flex justify-center text-center text-sm text-gray-500">
                                                 <p>

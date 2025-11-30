@@ -4,7 +4,7 @@ import type { Product } from '../types/product';
 export const productsApi = {
   // Fetch all products
 //   endpoint: /catalog/
-  fetchAll: () => apiClient.get<Product[]>('/products/'),
+  fetchAll: () => apiClient.get<Product[]>('/catalog/products/'),
 
   // Fetch with filters (optional)
   fetchFiltered: (params: { category?: string; minPrice?: number }) => {
@@ -14,9 +14,9 @@ export const productsApi = {
         .map(([k, v]) => [k, String(v)])
     ).toString();
     
-    return apiClient.get<Product[]>(`/products/?${queryString}`);
+    return apiClient.get<Product[]>(`/catalog/products/?${queryString}`);
   },
 
   // Fetch single product
-  fetchById: (id: number) => apiClient.get<Product>(`/products/${id}/`),
+  fetchById: (id: number) => apiClient.get<Product>(`/catalog/products/${id}/`),
 };
