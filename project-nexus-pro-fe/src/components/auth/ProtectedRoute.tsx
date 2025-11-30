@@ -1,8 +1,9 @@
 // src/components/auth/ProtectedRoute.tsx
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAppSelector } from '../../hooks/useAppSelector';
-import { selectIsAuthenticated } from '../../store/slices/authSlice';
+import { useAppDispatch } from '../../hooks/useAppDispatch';
+import { selectIsAuthenticated, selectUser, fetchUserProfile } from '../../store/slices/authSlice';
 
 interface ProtectedRouteProps {
     children: React.ReactNode;
@@ -10,7 +11,15 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     const isAuthenticated = useAppSelector(selectIsAuthenticated);
+    const user = useAppSelector(selectUser);
+    const dispatch = useAppDispatch();
     const location = useLocation();
+
+    useEffect(() => {
+        if (isAuthenticated && !user) {
+            dispatch(fetchUserProfile());
+        }
+    }, [isAuthenticated, user, dispatch]);
 
     if (!isAuthenticated) {
         // Redirect to login page but save the current location they were trying to go to

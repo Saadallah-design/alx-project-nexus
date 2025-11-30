@@ -11,6 +11,7 @@ import { ArrowRightIcon, ShoppingBagIcon } from '@heroicons/react/20/solid';
 const initialFormState: Partial<Address> = {
     first_name: '',
     last_name: '',
+    email: '',
     phone_number: '',
     city: '',
     postal_code: '',
@@ -45,7 +46,25 @@ const ShippingForm: React.FC = () => {
         const newErrors: Record<string, string> = {};
         if (!formData.first_name) newErrors.first_name = 'First name is required';
         if (!formData.last_name) newErrors.last_name = 'Last name is required';
-        if (!formData.phone_number) newErrors.phone_number = 'Phone number is required';
+
+        // Phone number validation
+        if (!formData.phone_number) {
+            newErrors.phone_number = 'Phone number is required';
+        } else {
+            // Validate phone number format: allow +, digits, spaces, hyphens, and parentheses
+            const phoneRegex = /^[\+]?[(]?[0-9]{1,4}[)]?[-\s\.]?[(]?[0-9]{1,4}[)]?[-\s\.]?[0-9]{1,9}$/;
+            if (!phoneRegex.test(formData.phone_number.replace(/\s/g, ''))) {
+                newErrors.phone_number = 'Please enter a valid phone number';
+            }
+        }
+
+        // Email validation
+        if (!formData.email) {
+            newErrors.email = 'Email is required';
+        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+            newErrors.email = 'Please enter a valid email address';
+        }
+
         // Address is now optional
         if (!formData.city) newErrors.city = 'City is required';
         if (!formData.postal_code) newErrors.postal_code = 'Postal code is required';
@@ -68,6 +87,7 @@ const ShippingForm: React.FC = () => {
             const fullAddress: Address = {
                 first_name: formData.first_name!,
                 last_name: formData.last_name!,
+                email: formData.email!,
                 phone_number: formData.phone_number!,
                 // Email is collected at OrderReview step
                 address_line_1: formData.address_line_1 || '', // Optional
@@ -127,7 +147,26 @@ const ShippingForm: React.FC = () => {
                     {renderInput('Last Name', 'last_name')}
                 </div>
 
-                {renderInput('Phone Number', 'phone_number', 'tel')}
+                <div>
+                    <label htmlFor="phone_number" className="block text-left text-sm font-medium text-gray-700 mb-1">
+                        Phone Number <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                        type="tel"
+                        name="phone_number"
+                        id="phone_number"
+                        required
+                        value={formData.phone_number || ''}
+                        onChange={handleChange}
+                        disabled={isCartEmpty}
+                        placeholder="+212612345678"
+                        pattern="[\+]?[(]?[0-9]{1,4}[)]?[-\s\.]?[(]?[0-9]{1,4}[)]?[-\s\.]?[0-9]{1,9}"
+                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm h-10 px-3 border disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    />
+                    {errors.phone_number && <p className="mt-1 text-sm text-red-600">{errors.phone_number}</p>}
+                </div>
+
+                {renderInput('Email Address', 'email', 'email')}
 
                 {renderInput('Street Address (Optional)', 'address_line_1', 'text', false)}
                 {renderInput('Apartment, suite, etc. (optional)', 'address_line_2')}

@@ -46,11 +46,15 @@ const OrderConfirmation: React.FC = () => {
             </div>
 
             <h2 className="text-3xl font-bold text-secondary mb-4">
-                Order Placed Successfully!
+                Order Placed Successfully! 🎉
             </h2>
 
             <p className="text-gray-600 mb-2">
                 Thank you for your order. We've received your order and will process it shortly.
+            </p>
+
+            <p className="text-sm text-primary mb-2">
+                📧 A confirmation email has been sent to your inbox
             </p>
 
             <p className="text-sm text-gray-500 mb-8">

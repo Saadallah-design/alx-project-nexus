@@ -1,4 +1,4 @@
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createSelector, type PayloadAction } from '@reduxjs/toolkit';
 import type { CheckoutState, Address, ShippingRate } from '../../types/checkout';
 
 // --- 1. Initial State ---
@@ -32,7 +32,7 @@ const checkoutSlice = createSlice({
         setShippingAddress: (state, action: PayloadAction<Address>) => {
             state.shippingAddress = action.payload;
             // Default billing address to shipping address for simplicity
-            state.billingAddress = action.payload; 
+            state.billingAddress = action.payload;
         },
         setBillingAddress: (state, action: PayloadAction<Address>) => {
             state.billingAddress = action.payload;
@@ -43,7 +43,7 @@ const checkoutSlice = createSlice({
         setPaymentMethod: (state, action: PayloadAction<CheckoutState['paymentMethod']>) => {
             state.paymentMethod = action.payload;
         },
-        
+
         // Submission Status
         setCheckoutStatus: (state, action: PayloadAction<CheckoutState['status']>) => {
             state.status = action.payload;
@@ -52,7 +52,7 @@ const checkoutSlice = createSlice({
             state.error = action.payload;
             state.status = 'failed';
         },
-        
+
         // Reset state after a successful order
         resetCheckout: () => initialState,
     },
@@ -72,15 +72,24 @@ export const {
 } = checkoutSlice.actions;
 
 // Export the State interface so RootState can use it
-export type { CheckoutState }; 
+export type { CheckoutState };
 
 // Selectors
 // Use RootState type from your store for accurate typing
-export const selectCurrentStep = (state: { checkout: CheckoutState }) => state.checkout.currentStep;
-export const selectCheckoutData = (state: { checkout: CheckoutState }) => ({
-    shippingAddress: state.checkout.shippingAddress,
-    selectedShippingRate: state.checkout.selectedShippingRate,
-    paymentMethod: state.checkout.paymentMethod,
-});
+const selectCheckoutState = (state: { checkout: CheckoutState }) => state.checkout;
+
+export const selectCurrentStep = createSelector(
+    [selectCheckoutState],
+    (checkout) => checkout.currentStep
+);
+
+export const selectCheckoutData = createSelector(
+    [selectCheckoutState],
+    (checkout) => ({
+        shippingAddress: checkout.shippingAddress,
+        selectedShippingRate: checkout.selectedShippingRate,
+        paymentMethod: checkout.paymentMethod,
+    })
+);
 
 export default checkoutSlice.reducer;

@@ -13,10 +13,10 @@ const initialState: ProductsState = {
 
 // Async thunk for fetching products from API (backend)
 export const fetchProducts = createAsyncThunk<Product[], void>(
-  'products/fetchProducts',
-  async () => {
-    return await productsApi.fetchAll();
-  }
+    'products/fetchProducts',
+    async () => {
+        return await productsApi.fetchAll();
+    }
 );
 
 // Create the slice
@@ -58,6 +58,11 @@ const productsSlice = createSlice({
 });
 
 export const { clearProducts, setError } = productsSlice.actions;
+
+// Selectors
+export const selectProducts = (state: { products: ProductsState }) => state.products.items;
+export const selectProductsLoading = (state: { products: ProductsState }) => state.products.loading;
+export const selectProductsError = (state: { products: ProductsState }) => state.products.error;
 
 export default productsSlice.reducer;
 

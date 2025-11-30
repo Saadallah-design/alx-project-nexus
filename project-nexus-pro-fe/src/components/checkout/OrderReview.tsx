@@ -50,15 +50,28 @@ const OrderReview: React.FC = () => {
         syncCart();
     }, [cartItems]); // Re-run if cartItems change, though mainly for initial load
 
+    // Redirect to shipping if no address (e.g. page refresh)
+    React.useEffect(() => {
+        if (!checkoutData.shippingAddress) {
+            console.warn('Missing shipping address, redirecting to step 1');
+            dispatch(setCurrentStep(1));
+        }
+    }, [checkoutData.shippingAddress, dispatch]);
+
     const handlePlaceOrder = async () => {
         dispatch(setCheckoutStatus('submitting'));
         setErrorMessage(null);
 
         try {
+            // Check if user is authenticated
+            const token = localStorage.getItem('access_token');
+            const isGuest = !token;
+
             // Transform frontend Address to backend CheckoutPayload
             const checkoutPayload: CheckoutPayload = {
                 first_name: checkoutData.shippingAddress?.first_name || '',
                 last_name: checkoutData.shippingAddress?.last_name || '',
+                email: checkoutData.shippingAddress?.email || '',
                 phone_number: checkoutData.shippingAddress?.phone_number || '',
                 shipping_address: checkoutData.shippingAddress?.address_line_1 || 'N/A',
                 shipping_address_line_2: checkoutData.shippingAddress?.address_line_2 || '',
@@ -68,17 +81,24 @@ const OrderReview: React.FC = () => {
                 shipping_country: checkoutData.shippingAddress?.country || 'Morocco',
             };
 
-            // Check if user is authenticated
-            const token = localStorage.getItem('access_token');
-            const isGuest = !token;
+            // Debug logging
+            console.log('🔍 CHECKOUT DEBUG:', {
+                isGuest,
+                email: checkoutPayload.email,
+                fullPayload: checkoutPayload
+            });
 
             // Call appropriate API endpoint
             let response;
             if (isGuest) {
+                console.log('📧 Calling guest checkout with email:', checkoutPayload.email);
                 response = await checkoutApi.createGuestOrder(checkoutPayload);
             } else {
+                console.log('📧 Calling authenticated checkout with email:', checkoutPayload.email);
                 response = await checkoutApi.createOrder(checkoutPayload);
             }
+
+            console.log('✅ Checkout response:', response);
 
             // Clear cart and move to confirmation
             dispatch(clearCart());

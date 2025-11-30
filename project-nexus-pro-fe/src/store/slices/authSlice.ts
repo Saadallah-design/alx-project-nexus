@@ -37,7 +37,7 @@ export const loginUser = createAsyncThunk(
 
 export const registerUser = createAsyncThunk(
     'auth/register',
-    async (data: RegisterData, { dispatch, rejectWithValue }) => {
+    async (data: RegisterData, { rejectWithValue }) => {
         try {
             const userProfile = await authApi.register(data);
 
@@ -80,6 +80,18 @@ export const logoutUser = createAsyncThunk(
             // Clear tokens even if API call fails
             clearTokens();
             return rejectWithValue(error.message || 'Logout failed');
+        }
+    }
+);
+
+export const updateUserProfile = createAsyncThunk(
+    'auth/updateProfile',
+    async (data: Partial<UserProfile>, { rejectWithValue }) => {
+        try {
+            const updatedProfile = await authApi.updateProfile(data);
+            return updatedProfile;
+        } catch (error: any) {
+            return rejectWithValue(error.message || 'Failed to update profile');
         }
     }
 );
@@ -147,6 +159,22 @@ const authSlice = createSlice({
                 state.error = action.payload as string;
                 state.isAuthenticated = false;
                 clearTokens();
+            });
+
+        // Update Profile
+        builder
+            .addCase(updateUserProfile.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(updateUserProfile.fulfilled, (state, action) => {
+                state.loading = false;
+                state.user = action.payload;
+                state.error = null;
+            })
+            .addCase(updateUserProfile.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload as string;
             });
 
         // Logout
